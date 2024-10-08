@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Chatbot</title>
+    <style>
+        /* Base Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Chat Container */
+        #chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Chat Header */
+        #chat-header {
+            background-color: #4a76a8;
+            padding: 15px;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Chatbox */
+        #chatbox {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9f9fb;
+        }
+
+        /* Chat Bubbles */
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message p {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 70%;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .user-message p {
+            background-color: #4a76a8;
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .bot-message p {
+            background-color: #eaeaea;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+
+        /* Input Container */
+        #input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        #message {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        #message:focus {
+            border-color: #4a76a8;
+        }
+
+        #send {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #4a76a8;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #send:hover {
+            background-color: #36597c;
+        }
+
+        /* Scrollbar Styling */
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbox::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background-color: #4a76a8;
+            border-radius: 10px;
+        }
+
+        /* Media Queries */
+        @media (max-width: 600px) {
+            #chat-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">SoulHaven</div>
+        <div id="chatbox"></div>
+        <div id="input-container">
+            <input type="text" id="message" placeholder="Type your message here..." />
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const sendButton = document.getElementById('send');
+        const chatbox = document.getElementById('chatbox');
+        const messageInput = document.getElementById('message');
+
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            appendMessage('You', message, 'user-message');
+            
+            // Send the message to the Flask server
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage('Bot', data.response, 'bot-message');
+            });
+        });
+
+        function appendMessage(sender, message, className) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', className);
+
+            const messageText = document.createElement('p');
+            messageText.textContent = message;
+
+            messageElement.appendChild(messageText);
+            chatbox.appendChild(messageElement);
+
+            // Scroll to the bottom of chatbox
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            messageInput.value = '';
+        }
+    </script>
+</body>
+</html>
+
